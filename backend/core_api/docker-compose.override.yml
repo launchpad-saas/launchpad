@@ -1,0 +1,16 @@
+services:
+  core_api:
+    build:
+      target: development
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./:/app/backend/core_api
+      - ../../packages/launchpad_shared:/app/packages/launchpad_shared
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      LOG_LEVEL: debug
+
+  core_api_db:
+    ports:
+      - "5433:5432"

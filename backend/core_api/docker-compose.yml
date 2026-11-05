@@ -1,0 +1,39 @@
+services:
+  core_api:
+    build:
+      context: ../../
+      dockerfile: backend/core_api/Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://user:pass@core_api_db:5432/launchpad_core
+      SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
+    depends_on:
+      core_api_db:
+        condition: service_healthy
+    networks:
+      - launchpad_net
+
+  core_api_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: launchpad_core
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - core_api_db_data:/var/lib/postgresql/data
+      - ../../database/init-scripts/core:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d launchpad_core"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - launchpad_net
+
+networks:
+  launchpad_net:
+    name: launchpad_net
+
+volumes:
+  core_api_db_data:

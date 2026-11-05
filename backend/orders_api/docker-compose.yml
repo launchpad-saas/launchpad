@@ -1,0 +1,39 @@
+services:
+  orders_api:
+    build:
+      context: ../../
+      dockerfile: backend/orders_api/Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://user:pass@orders_api_db:5432/launchpad_orders
+      SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
+    depends_on:
+      orders_api_db:
+        condition: service_healthy
+    networks:
+      - launchpad_net
+
+  orders_api_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: launchpad_orders
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - orders_api_db_data:/var/lib/postgresql/data
+      - ../../database/init-scripts/orders:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d launchpad_orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - launchpad_net
+
+networks:
+  launchpad_net:
+    name: launchpad_net
+
+volumes:
+  orders_api_db_data:
