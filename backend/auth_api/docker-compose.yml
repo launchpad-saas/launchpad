@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: pass
     volumes:
       - auth_api_db_data:/var/lib/postgresql/data
-      - ../../database/init-scripts/auth:/docker-entrypoint-initdb.d:ro
+      - ./database/init-scripts:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d launchpad_auth"]
       interval: 5s
