@@ -1,0 +1,14 @@
+services:
+  admin_api:
+    build:
+      target: development
+    volumes:
+      - ./:/app/backend/admin_api
+      - ../../packages/launchpad_shared:/app/packages/launchpad_shared
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      LOG_LEVEL: debug
+
+  admin_api_db:
+    ports:
+      - "5440:5432"

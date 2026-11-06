@@ -1,0 +1,40 @@
+services:
+  admin_api:
+    build:
+      context: ../../
+      dockerfile: backend/admin_api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://user:pass@admin_api_db:5432/launchpad_admin
+      SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
+      LOG_LEVEL: info
+    depends_on:
+      admin_api_db:
+        condition: service_healthy
+    networks:
+      - launchpad_net
+
+  admin_api_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: launchpad_admin
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - admin_api_db_data:/var/lib/postgresql/data
+      - ../../database/init-scripts/admin:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d launchpad_admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - launchpad_net
+
+networks:
+  launchpad_net:
+    name: launchpad_net
+
+volumes:
+  admin_api_db_data:

@@ -1,4 +1,8 @@
 include:
+  - path: backend/admin_api/docker-compose.yml
+    env_file: .env
+  - path: backend/auth_api/docker-compose.yml
+    env_file: .env
   - path: backend/catalog_api/docker-compose.yml
     env_file: .env
   - path: backend/orders_api/docker-compose.yml
