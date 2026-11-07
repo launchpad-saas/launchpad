@@ -1,2 +1,6 @@
-from app.models.fdw import ForeignUser  # noqa
-from app.models.example import Example  # noqa
+"""Orders API models."""
+
+from app.models.order import Order
+from app.models.order_item import OrderItem
+
+__all__ = ["Order", "OrderItem"]

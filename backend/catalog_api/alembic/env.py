@@ -6,7 +6,7 @@ from alembic import context
 
 from app.core.config import settings
 from app.db.base import Base
-from app.models import *  # noqa
+from app.models import *  # noqa: F401, F403
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
@@ -15,21 +15,40 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
+schema = settings.DEFAULT_TENANT_SCHEMA
+VERSION_TABLE = "catalog_alembic_version"
+
+
+def include_name(name, type_, parent_names):
+    if type_ == "schema":
+        return name in {schema, None}
+    return True
 
 
 def run_migrations_offline() -> None:
     context.configure(
-        url=settings.DATABASE_URL,
+        url=config.get_main_option("sqlalchemy.url"),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        version_table=VERSION_TABLE,
+        version_table_schema=schema,
+        include_schemas=True,
+        include_name=include_name,
     )
     with context.begin_transaction():
         context.run_migrations()
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        version_table=VERSION_TABLE,
+        version_table_schema=schema,
+        include_schemas=True,
+        include_name=include_name,
+    )
     with context.begin_transaction():
         context.run_migrations()
 

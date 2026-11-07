@@ -1,0 +1,24 @@
+services:
+  tenant_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: launchpad_tenant
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - tenant_db_data:/var/lib/postgresql/data
+      - ./database/init-scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d launchpad_tenant"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - launchpad_net
+
+networks:
+  launchpad_net:
+    name: launchpad_net
+
+volumes:
+  tenant_db_data:

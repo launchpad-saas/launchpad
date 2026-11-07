@@ -1,8 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from launchpad_shared.middleware import TenantMiddleware
 from launchpad_shared.schemas import BaseSchema
+from launchpad_shared import configure_tenant_engine
+from app.core.config import settings
 from app.api.health import router as health_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Configure shared tenant engine once
+    configure_tenant_engine(settings.DATABASE_URL)
+    yield
 
 
 class RootResponse(BaseSchema):
@@ -10,7 +22,7 @@ class RootResponse(BaseSchema):
     status: str
 
 
-app = FastAPI(title="catalog_api", version="0.1.0")
+app = FastAPI(title="catalog_api", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(TenantMiddleware)
 app.include_router(health_router, prefix="/api/v1")

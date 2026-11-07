@@ -1,4 +1,15 @@
-"""PostgreSQL FDW helpers for cross-DB user reads."""
+"""PostgreSQL FDW helpers, slug validation, tenant-scoped DB session."""
+
+from launchpad_shared.db.slug import (
+    InvalidTenantSlug,
+    RESERVED_SCHEMAS,
+    SLUG_PATTERN,
+    validate_tenant_slug,
+)
+from launchpad_shared.db.session import (
+    configure_tenant_engine,
+    get_tenant_session,
+)
 
 CORE_SERVER_NAME = "launchpad_core_server"
 
@@ -36,3 +47,14 @@ CREATE FOREIGN TABLE IF NOT EXISTS foreign_users (
 ) SERVER {CORE_SERVER_NAME}
 OPTIONS (schema_name 'public', table_name 'users');
 """.strip()
+
+
+__all__ = [
+    "InvalidTenantSlug",
+    "RESERVED_SCHEMAS",
+    "SLUG_PATTERN",
+    "validate_tenant_slug",
+    "configure_tenant_engine",
+    "get_tenant_session",
+    "build_fdw_setup_sql",
+]

@@ -1,0 +1,4 @@
+services:
+  tenant_db:
+    ports:
+      - "5442:5432"

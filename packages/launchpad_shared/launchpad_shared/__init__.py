@@ -11,7 +11,15 @@ from launchpad_shared.auth import (
     require_auth,
     verify_password,
 )
-from launchpad_shared.db import build_fdw_setup_sql
+from launchpad_shared.db import (
+    InvalidTenantSlug,
+    RESERVED_SCHEMAS,
+    SLUG_PATTERN,
+    build_fdw_setup_sql,
+    configure_tenant_engine,
+    get_tenant_session,
+    validate_tenant_slug,
+)
 
 __all__ = [
     "BaseSchema",
@@ -23,5 +31,11 @@ __all__ = [
     "hash_password",
     "require_auth",
     "verify_password",
+    "InvalidTenantSlug",
+    "RESERVED_SCHEMAS",
+    "SLUG_PATTERN",
     "build_fdw_setup_sql",
+    "configure_tenant_engine",
+    "get_tenant_session",
+    "validate_tenant_slug",
 ]
