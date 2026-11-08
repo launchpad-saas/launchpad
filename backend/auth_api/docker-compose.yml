@@ -8,13 +8,11 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://user:pass@postgres:5432/launchpad_auth
       SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
-      LOG_LEVEL: info
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - launchpad_net
-
 networks:
   launchpad_net:
     name: launchpad_net

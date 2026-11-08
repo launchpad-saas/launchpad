@@ -5,21 +5,21 @@ from typing import Any
 from uuid import UUID
 
 from jose import jwt
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
 
 DEFAULT_SECRET_KEY = "CHANGE_ME_IN_PRODUCTION"
 DEFAULT_ALGORITHM = "HS256"
 DEFAULT_ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_hash = PasswordHash.recommended()
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return pwd_hash.hash(password)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return pwd_hash.verify(plain, hashed)
 
 
 def create_access_token(
@@ -54,5 +54,5 @@ def decode_access_token(
     return jwt.decode(token, secret_key, algorithms=[algorithm])
 
 
-# Re-export dependency layer so `from launchpad_shared.auth import AuthClaims, require_auth` works.
-from .dependencies import AuthClaims, require_auth  # noqa: E402,F401
+# Export dependencies
+from .dependencies import AuthClaims, require_auth, require_superuser  # noqa: E402,F401
