@@ -43,3 +43,12 @@ async def require_auth(
         tenant_id=UUID(tenant_raw) if tenant_raw else None,
         roles=payload.get("roles") or [],
     )
+
+async def require_superuser(claims: AuthClaims = Depends(require_auth)) -> AuthClaims:
+    """Dependency that requires the JWT to have is_superuser=True."""
+    if not getattr(claims, "is_superuser", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Superuser privileges required",
+        )
+    return claims
