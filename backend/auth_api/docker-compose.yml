@@ -6,37 +6,16 @@ services:
     ports:
       - "8001:8001"
     environment:
-      DATABASE_URL: postgresql+asyncpg://user:pass@auth_api_db:5432/launchpad_auth
+      DATABASE_URL: postgresql+asyncpg://user:pass@postgres:5432/launchpad_auth
       SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
       LOG_LEVEL: info
     depends_on:
-      auth_api_db:
+      postgres:
         condition: service_healthy
-    networks:
-      - launchpad_net
-
-  auth_api_db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: launchpad_auth
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-    volumes:
-      - auth_api_db_data:/var/lib/postgresql/data
-      - ./database/init-scripts:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "5441:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d launchpad_auth"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
     networks:
       - launchpad_net
 
 networks:
   launchpad_net:
     name: launchpad_net
-
-volumes:
-  auth_api_db_data:
+    external: true

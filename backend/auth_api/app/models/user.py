@@ -7,7 +7,7 @@ to a row in admin_api's tenants table (no cross-DB FK).
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, String, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, Index, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -23,8 +23,8 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    tenant_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True), nullable=False, index=True
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), nullable=True, index=True
     )
     email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -41,3 +41,18 @@ class User(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+
+Index(
+    "uq_users_tenant_email_ci",
+    User.tenant_id,
+    func.lower(User.email),
+    unique=True,
+    postgresql_where=User.tenant_id.is_not(None),
+)
+Index(
+    "uq_users_platform_email_ci",
+    func.lower(User.email),
+    unique=True,
+    postgresql_where=User.tenant_id.is_(None),
+)

@@ -6,12 +6,12 @@ services:
     ports:
       - "8002:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://user:pass@tenant_db:5432/launchpad_tenant
+      DATABASE_URL: postgresql+asyncpg://user:pass@postgres:5432/launchpad_tenant
       SECRET_KEY: ${SECRET_KEY:-CHANGE_ME}
       LOG_LEVEL: info
       DEFAULT_TENANT_SCHEMA: acme
     depends_on:
-      tenant_db:
+      postgres:
         condition: service_healthy
     networks:
       - launchpad_net

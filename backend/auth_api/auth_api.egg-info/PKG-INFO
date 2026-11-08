@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: auth_api
+Version: 0.1.0
+Summary: LaunchPad authentication & user management
+Requires-Python: >=3.11
+Requires-Dist: fastapi>=0.115
+Requires-Dist: uvicorn[standard]>=0.27
+Requires-Dist: sqlalchemy[asyncio]>=2.0
+Requires-Dist: asyncpg>=0.29
+Requires-Dist: alembic>=1.13
+Requires-Dist: pydantic>=2.9
+Requires-Dist: pydantic-settings>=2.5
+Requires-Dist: email-validator>=2.1
+Requires-Dist: python-jose[cryptography]>=3.3
+Requires-Dist: pwdlib[argon2]>=0.2
+Requires-Dist: python-multipart>=0.0.9
+Requires-Dist: pytest>=8
+Requires-Dist: httpx>=0.27
+Requires-Dist: launchpad-shared
