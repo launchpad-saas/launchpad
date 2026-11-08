@@ -1,44 +1,28 @@
-from fastapi import FastAPI, Request
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
-from app.api.auth import router as auth_router
 from launchpad_shared.middleware import TenantMiddleware
 from launchpad_shared.schemas import BaseSchema
+from launchpad_shared import configure_tenant_engine
 from app.core.config import settings
-from app.core.errors import AuthAPIError
-from launchpad_shared.auth import get_jwt_secret_key
 from app.api.health import router as health_router
+from app.api.auth import router as auth_router
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    configure_tenant_engine(settings.DATABASE_URL)
+    yield
 
 class RootResponse(BaseSchema):
     service: str
     status: str
 
-
-app = FastAPI(title="auth_api", version="0.1.0")
-app.dependency_overrides[get_jwt_secret_key] = lambda: settings.SECRET_KEY
-
-
-@app.exception_handler(AuthAPIError)
-async def auth_api_error_handler(_request: Request, exc: AuthAPIError) -> JSONResponse:
-    headers = {}
-    if exc.status_code == 401:
-        headers["WWW-Authenticate"] = "Bearer"
-    if exc.status_code == 429:
-        headers["Retry-After"] = str(settings.AUTH_LOGIN_WINDOW_MINUTES * 60)
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-        headers=headers,
-    )
-
-
+app = FastAPI(title="auth_api", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(TenantMiddleware)
 app.include_router(health_router, prefix="/api/v1")
-app.include_router(auth_router, prefix="/api/v1")
-
+app.include_router(auth_router, prefix="/api/v1/auth")
 
 @app.get("/", response_model=RootResponse)
 async def root():

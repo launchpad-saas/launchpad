@@ -7,8 +7,10 @@ from launchpad_shared.auth import (
     AuthClaims,
     create_access_token,
     decode_access_token,
+    get_jwt_secret_key,
     hash_password,
     require_auth,
+    require_superuser,
     verify_password,
 )
 from launchpad_shared.db import (
@@ -28,8 +30,10 @@ __all__ = [
     "AuthClaims",
     "create_access_token",
     "decode_access_token",
+    "get_jwt_secret_key",
     "hash_password",
     "require_auth",
+    "require_superuser",
     "verify_password",
     "InvalidTenantSlug",
     "RESERVED_SCHEMAS",

@@ -1,4 +1,4 @@
-"""FastAPI auth dependency."""
+"""FastAPI auth dependencies."""
 
 from dataclasses import dataclass
 from uuid import UUID
@@ -7,9 +7,15 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 
-from . import decode_access_token
+from launchpad_shared.auth import decode_access_token
+from app.core.config import settings  # We need settings for the secret key
 
 bearer_scheme = HTTPBearer(auto_error=False)
+
+
+def get_jwt_secret_key() -> str:
+    """Helper to get the secret key for JWT signing/decoding."""
+    return settings.SECRET_KEY
 
 
 @dataclass(frozen=True)
@@ -17,6 +23,7 @@ class AuthClaims:
     sub: str
     tenant_id: UUID | None
     roles: list[str]
+    is_superuser: bool = False
 
 
 async def require_auth(
@@ -29,7 +36,10 @@ async def require_auth(
             headers={"WWW-Authenticate": "Bearer"},
         )
     try:
-        payload = decode_access_token(credentials.credentials)
+        payload = decode_access_token(
+            credentials.credentials, 
+            secret_key=get_jwt_secret_key()
+        )
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -42,4 +52,14 @@ async def require_auth(
         sub=payload.get("sub", ""),
         tenant_id=UUID(tenant_raw) if tenant_raw else None,
         roles=payload.get("roles") or [],
+        is_superuser=payload.get("is_superuser", False),
     )
+
+
+async def require_superuser(claims: AuthClaims = Depends(require_auth)) -> AuthClaims:
+    if not claims.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Superuser privileges required",
+        )
+    return claims
