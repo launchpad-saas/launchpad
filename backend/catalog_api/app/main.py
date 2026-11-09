@@ -8,6 +8,7 @@ from launchpad_shared.schemas import BaseSchema
 from launchpad_shared import configure_tenant_engine
 from app.core.config import settings
 from app.api.health import router as health_router
+from app.api.internal import router as internal_router
 
 
 @asynccontextmanager
@@ -26,6 +27,7 @@ app = FastAPI(title="catalog_api", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(TenantMiddleware)
 app.include_router(health_router, prefix="/api/v1")
+app.include_router(internal_router, prefix="/api/v1/internal")
 
 
 @app.get("/", response_model=RootResponse)

@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.credentials import router as credentials_router
 from app.api.health import router as health_router
+from app.api.onboarding import router as onboarding_router
 from app.api.plans import router as plans_router
 from app.api.subscriptions import router as subscriptions_router
 from app.api.tenants import router as tenants_router
@@ -32,6 +33,7 @@ async def admin_api_error_handler(_request: Request, exc: AdminAPIError) -> JSON
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(health_router, prefix="/api/v1")
+app.include_router(onboarding_router, prefix="/api/v1/onboarding")
 app.include_router(tenants_router, prefix="/api/v1")
 app.include_router(credentials_router, prefix="/api/v1")
 app.include_router(plans_router, prefix="/api/v1")
