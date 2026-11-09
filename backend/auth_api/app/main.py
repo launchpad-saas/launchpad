@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.errors import AuthAPIError
 from launchpad_shared.auth import get_jwt_secret_key
 from app.api.health import router as health_router
+from app.api.internal import router as internal_router
 
 
 class RootResponse(BaseSchema):
@@ -37,6 +38,7 @@ async def auth_api_error_handler(_request: Request, exc: AuthAPIError) -> JSONRe
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(TenantMiddleware)
 app.include_router(health_router, prefix="/api/v1")
+app.include_router(internal_router, prefix="/api/v1/internal")
 app.include_router(auth_router, prefix="/api/v1")
 
 

@@ -55,4 +55,4 @@ def decode_access_token(
 
 
 # Export dependencies
-from .dependencies import AuthClaims, require_auth, require_superuser  # noqa: E402,F401
+from .dependencies import AuthClaims, require_auth, require_superuser, get_jwt_secret_key  # noqa: E402,F401
